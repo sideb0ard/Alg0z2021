@@ -74,8 +74,8 @@ void merge_sort(std::vector<int>& nums, int left, int right) {
 }
 void merge2(std::vector<int>& nums, int start, int mid, int end, int level) {
   for (int i = 0; i < level; i++) std::cout << " ";
-  std::cout << "*MERGE start:" << start << " mid:" << mid << " end:" << end
-            << std::endl;
+  std::cout << "*MERGE(level:" << level << ") start : " << start
+            << " mid : " << mid << " end : " << end << std::endl;
 
   std::vector<int> left;
   int left_size = mid - start + 1;
@@ -88,17 +88,15 @@ void merge2(std::vector<int>& nums, int start, int mid, int end, int level) {
   int left_idx = 0;
   int right_idx = 0;
   int nums_idx = start;
-  while (nums_idx < end) {
-    while (left_idx < left_size && right_idx < right_size) {
-      if (left[left_idx] < right[right_idx])
-        nums[nums_idx] = left[left_idx++];
-      else
-        nums[nums_idx] = right[right_idx++];
-      nums_idx++;
-    }
-    while (left_idx < left_size) nums[nums_idx++] = left[left_idx++];
-    while (right_idx < right_size) nums[nums_idx++] = right[right_idx++];
+  while (left_idx < left_size && right_idx < right_size) {
+    if (left[left_idx] < right[right_idx])
+      nums[nums_idx] = left[left_idx++];
+    else
+      nums[nums_idx] = right[right_idx++];
+    nums_idx++;
   }
+  while (left_idx < left_size) nums[nums_idx++] = left[left_idx++];
+  while (right_idx < right_size) nums[nums_idx++] = right[right_idx++];
 }
 
 void merge_sort2(std::vector<int>& nums, int start, int end, int level) {
