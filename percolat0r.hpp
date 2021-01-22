@@ -1,5 +1,7 @@
 #include <vector>
 
+#include "quickunion.hpp"
+
 class Percolation {
  public:
   Percolation(int n);
@@ -9,6 +11,11 @@ class Percolation {
   int NumberOfOpenSites();
   bool Percolates();
 
- private:
+ public:
   std::vector<std::vector<int>> _grid;
+
+ private:
+  QuickUnion _connections;
+  int _size{0};
+  int _open_sites{0};
 };

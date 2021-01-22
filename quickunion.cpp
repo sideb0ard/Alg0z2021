@@ -31,9 +31,9 @@ void QuickUnion::Union(int p, int q) {
     nums_[q_val] = p_val;
     sz_[p_val] += sz_[q_val];
   }
-  std::cout << "UNION! " << q_val << " " << p_val << std::endl;
-  print_vec(nums_);
-  print_vec(sz_);
+  // std::cout << "UNION! " << q_val << " " << p_val << std::endl;
+  // print_vec(nums_);
+  // print_vec(sz_);
 }
 
 bool QuickUnion::Connected(int p, int q) { return Root(p) == Root(q); }
