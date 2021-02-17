@@ -1,53 +1,111 @@
+#pragma once
+
+#include <iostream>
 #include <memory>
 
-#include "item.hpp"
-
+template <class T>
 class Deque {
+ private:
+  struct Node {
+    T _data;
+    std::unique_ptr<Node> _next = nullptr;
+    Node* _prev = nullptr;
+    Node(T x) : _data{x}, _next{nullptr}, _prev{nullptr} {}
+  };
+
+  std::unique_ptr<Node> _head{nullptr};
+  Node* _tail = nullptr;
+
+  int _size{0};
+
  public:
   Deque() = default;
-  bool IsEmpty();
-  int Size();
-  void AddFirst(std::string val);
-  void AddLast(std::string val);
-  std::string RemoveFirst();
-  std::string RemoveLast();
 
-  struct Iterator {
-    using iterator_category = std::forward_iterator_tag;
-    using value_type = std::shared_ptr<Algo::Item>;
-
-    Iterator(std::shared_ptr<Algo::Item> item) : m_ptr(item) {}
-#//reference operator*() const { return *m_ptr; }
-#//pointer operator->() { return m_ptr; }
-
-    // Prefix increment
-    Iterator& operator++() {
-      m_ptr = m_ptr->next;
-      return *this;
+  void Dump() const {
+    for (Node* loop = _head.get(); loop != nullptr; loop = loop->_next.get()) {
+      std::cout << loop->_data << " ";
     }
+    std::cout << std::endl;
+  }
 
-    // Postfix increment
-    Iterator operator++(std::shared_ptr<Algo::Item>) {
-      Iterator tmp = *this;
-      ++(*this);
-      return tmp;
-    }
+  // bool empty() const { return head.get() == nullptr; }
+  int size() const;
+  void push_back(const T& data);
+  void push_back(T&& data);
 
-    friend bool operator==(const Iterator& a, const Iterator& b) {
-      return a.m_ptr == b.m_ptr;
-    };
-    friend bool operator!=(const Iterator& a, const Iterator& b) {
-      return a.m_ptr != b.m_ptr;
-    };
+  T pop_back();
 
-   private:
-    std::shared_ptr<Algo::Item> m_ptr{nullptr};
-  };
-  Iterator begin() { return Iterator(_first); };
-  Iterator end() { return Iterator(_last); };
+  // Iterator basics
+  class Iterator;
+  Iterator begin() { return Iterator(_head.get()); }
+  Iterator end() { return Iterator(nullptr); }
+};
+
+template <class T>
+void Deque<T>::push_back(const T& data) {
+  auto new_node = std::make_unique<Node>(data);
+
+  if (!_head) {
+    _head = std::move(new_node);
+    _tail = _head.get();
+  } else {
+    _tail->_next = std::move(new_node);
+    Node* saved = _tail;
+    _tail = _tail->_next.get();
+    _tail->_prev = saved;
+  }
+  _size++;
+}
+
+template <class T>
+T Deque<T>::pop_back() {
+  T ret_val{_tail->_data};
+  if (_tail != _head.get()) {
+    _tail->_prev->_next = nullptr;
+    _tail = _tail->_prev;
+  }
+  _size--;
+  std::cout << "  Returning " << ret_val << std::endl;
+  return ret_val;
+}
+
+template <class T>
+int Deque<T>::size() const {
+  return _size;
+}
+
+template <class T>
+class Deque<T>::Iterator {
+  using iterator_category = std::forward_iterator_tag;
+
+ public:
+  Iterator(Node* ptr) : mPtr{ptr} {}
+  Iterator& operator++();
+  T& operator*();
+  bool operator==(const Iterator& iter);
+  bool operator!=(const Iterator& iter);
 
  private:
-  std::shared_ptr<Algo::Item> _first{nullptr};
-  std::shared_ptr<Algo::Item> _last{nullptr};
-  size_t _size{0};
+  Node* mPtr;
 };
+
+template <typename T>
+typename Deque<T>::Iterator& Deque<T>::Iterator::operator++() {
+  this->mPtr = mPtr->_next.get();
+  return *this;
+}
+
+template <typename T>
+T& Deque<T>::Iterator::operator*() {
+  return this->mPtr->_data;
+}
+
+template <typename T>
+bool Deque<T>::Iterator::operator==(const Iterator& iter) {
+  return this->mPtr == iter.mPtr;
+}
+
+template <typename T>
+bool Deque<T>::Iterator::operator!=(const Iterator& iter) {
+  return this->mPtr != iter.mPtr;
+}
